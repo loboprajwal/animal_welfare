@@ -4,11 +4,10 @@ import QuickActions from "@/components/home/quick-actions";
 import RecentReports from "@/components/home/recent-reports";
 import NearbyVets from "@/components/home/nearby-vets";
 import AdoptionSection from "@/components/home/adoption-section";
-import DonationSection from "@/components/home/donation-section";
 import Testimonials from "@/components/home/testimonials";
 import CTASection from "@/components/home/cta-section";
 import { useQuery } from "@tanstack/react-query";
-import { Report, Vet, Adoption, Donation } from "@shared/schema";
+import { Report, Vet, Adoption } from "@shared/schema";
 
 const HomePage = () => {
   // Fetch recent reports
@@ -26,10 +25,7 @@ const HomePage = () => {
     queryKey: ["/api/adoptions"],
   });
 
-  // Fetch donation campaigns
-  const { data: donations } = useQuery<Donation[]>({
-    queryKey: ["/api/donations"],
-  });
+  // Donations section removed as per user request
 
   // Set document title
   useEffect(() => {
@@ -43,7 +39,6 @@ const HomePage = () => {
       <RecentReports reports={reports || []} />
       <NearbyVets vets={vets || []} />
       <AdoptionSection adoptions={adoptions || []} />
-      <DonationSection donations={donations || []} />
       <Testimonials />
       <CTASection />
     </div>

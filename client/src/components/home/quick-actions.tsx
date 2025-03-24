@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { AlertTriangle, Heart, Home } from "lucide-react";
+import { AlertTriangle, Home } from "lucide-react";
 
 const QuickActions = () => {
   return (
@@ -7,7 +7,7 @@ const QuickActions = () => {
       <div className="container mx-auto px-4">
         <h2 className="font-heading font-bold text-2xl md:text-3xl text-center mb-10">How You Can Help</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Action Card 1 */}
           <div className="bg-neutral-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
             <div className="h-48 bg-secondary bg-opacity-20 flex items-center justify-center">
@@ -23,20 +23,6 @@ const QuickActions = () => {
           </div>
           
           {/* Action Card 2 */}
-          <div className="bg-neutral-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-            <div className="h-48 bg-primary bg-opacity-20 flex items-center justify-center">
-              <Heart className="h-16 w-16 text-primary" />
-            </div>
-            <div className="p-6">
-              <h3 className="font-heading font-semibold text-xl mb-2">Donate to a Cause</h3>
-              <p className="text-neutral-600 mb-4">Support animal welfare organizations with donations for food, medicine, and shelter.</p>
-              <Link href="/donate" className="text-primary font-medium hover:underline flex items-center">
-                Donate Now <span className="ml-1">→</span>
-              </Link>
-            </div>
-          </div>
-          
-          {/* Action Card 3 */}
           <div className="bg-neutral-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
             <div className="h-48 bg-accent bg-opacity-20 flex items-center justify-center">
               <Home className="h-16 w-16 text-accent" />

@@ -30,9 +30,7 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", path: "/" },
     { name: "Report Animal", path: "/report-animal" },
-    { name: "Find Vets", path: "/find-vets" },
     { name: "Adopt", path: "/adopt" },
-    { name: "Donate", path: "/donate" },
     { name: "Community", path: "/community" },
   ];
 

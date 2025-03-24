@@ -5,9 +5,7 @@ import Footer from "@/components/layout/footer";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import ReportAnimal from "@/pages/report-animal";
-import FindVets from "@/pages/find-vets";
 import Adoption from "@/pages/adoption";
-import Donate from "@/pages/donate";
 import Community from "@/pages/community";
 import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
@@ -19,9 +17,7 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/report-animal" component={ReportAnimal} />
-      <Route path="/find-vets" component={FindVets} />
       <Route path="/adopt" component={Adoption} />
-      <Route path="/donate" component={Donate} />
       <ProtectedRoute path="/community" component={Community} />
       <ProtectedRoute path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
