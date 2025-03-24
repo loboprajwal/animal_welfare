@@ -1,38 +1,41 @@
-import React from 'react';
-import { Link } from 'wouter';
-import { Button } from '@/components/ui/button';
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="bg-primary-light bg-opacity-10 py-16">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:flex lg:items-center lg:justify-between">
-          <div className="lg:w-1/2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-neutral-dark sm:text-5xl">
-              <span className="block">Help animals in need</span>
-              <span className="block text-primary">Report. Rescue. Rehome.</span>
+    <section className="bg-primary bg-opacity-10 py-12 md:py-20">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h1 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl text-neutral-800 leading-tight mb-4">
+              Help Save <span className="text-primary">Animals</span> In Need
             </h1>
-            <p className="mt-4 text-xl text-neutral-medium">
-              AnimalSOS connects injured, lost, or stray animals with rescuers, vets, and loving forever homes.
+            <p className="text-lg text-neutral-600 mb-8">
+              Report injured animals, find veterinarians, donate to welfare causes, and give pets a loving home - all in one platform.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <Link href="/report">
-                <Button size="lg" className="text-white bg-primary hover:bg-primary-dark shadow-sm">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/report-animal">
+                <Button
+                  className="px-6 py-6 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors shadow-md"
+                >
                   Report an Animal
                 </Button>
               </Link>
-              <Link href="/adoption">
-                <Button size="lg" variant="outline" className="text-primary bg-white hover:bg-gray-50 shadow-sm">
-                  Find a Pet
+              <Link href="/adopt">
+                <Button
+                  variant="outline"
+                  className="px-6 py-6 bg-white text-primary font-medium rounded-lg border border-primary hover:bg-neutral-50 transition-colors"
+                >
+                  Adopt a Pet
                 </Button>
               </Link>
             </div>
           </div>
-          <div className="mt-10 lg:mt-0 lg:w-1/2">
-            <img 
-              className="h-96 w-full object-cover rounded-lg shadow-xl" 
-              src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" 
-              alt="Dog being rescued" 
+          <div className="hidden lg:block">
+            <img
+              src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+              alt="Happy dog being rescued"
+              className="rounded-lg shadow-lg object-cover w-full h-[400px]"
             />
           </div>
         </div>

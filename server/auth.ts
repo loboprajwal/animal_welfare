@@ -5,7 +5,8 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User as SelectUser } from "@shared/schema";
+import { User as SelectUser, insertUserSchema } from "@shared/schema";
+import { z } from "zod";
 
 declare global {
   namespace Express {
@@ -35,7 +36,10 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     store: storage.sessionStore,
     cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      httpOnly: true,
+      secure: app.get("env") === "production",
+      sameSite: "lax"
     }
   };
 
@@ -53,8 +57,8 @@ export function setupAuth(app: Express) {
         } else {
           return done(null, user);
         }
-      } catch (error) {
-        return done(error);
+      } catch (err) {
+        return done(err);
       }
     }),
   );
@@ -64,41 +68,73 @@ export function setupAuth(app: Express) {
     try {
       const user = await storage.getUser(id);
       done(null, user);
-    } catch (error) {
-      done(error);
+    } catch (err) {
+      done(err, null);
     }
   });
 
+  // Registration endpoint
   app.post("/api/register", async (req, res, next) => {
     try {
-      const existingUser = await storage.getUserByUsername(req.body.username);
-      if (existingUser) {
-        return res.status(400).send("Username already exists");
-      }
-
-      const existingEmail = await storage.getUserByEmail(req.body.email);
-      if (existingEmail) {
-        return res.status(400).send("Email already in use");
-      }
-
-      const user = await storage.createUser({
-        ...req.body,
-        password: await hashPassword(req.body.password),
+      // Validate input
+      const registerSchema = insertUserSchema.extend({
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        email: z.string().email("Invalid email format"),
       });
+      
+      const validatedData = registerSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUsername = await storage.getUserByUsername(validatedData.username);
+      if (existingUsername) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      const existingEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
 
+      // Create the user with hashed password
+      const userToCreate = {
+        ...validatedData,
+        password: await hashPassword(validatedData.password),
+      };
+      
+      const user = await storage.createUser(userToCreate);
+      
+      // Auto login after registration
       req.login(user, (err) => {
         if (err) return next(err);
-        res.status(201).json(user);
+        // Return user without password
+        const { password, ...userWithoutPassword } = user;
+        res.status(201).json(userWithoutPassword);
       });
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: err.errors });
+      }
+      next(err);
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  // Login endpoint
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) return next(err);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+      req.login(user, (err) => {
+        if (err) return next(err);
+        // Return user without password
+        const { password, ...userWithoutPassword } = user;
+        res.status(200).json(userWithoutPassword);
+      });
+    })(req, res, next);
   });
 
+  // Logout endpoint
   app.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
@@ -106,8 +142,11 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // Get current user endpoint
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
+    // Return user without password
+    const { password, ...userWithoutPassword } = req.user;
+    res.json(userWithoutPassword);
   });
 }

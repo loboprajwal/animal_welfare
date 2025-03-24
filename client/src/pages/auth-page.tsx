@@ -1,110 +1,354 @@
-import React from 'react';
-import { Redirect } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
-import AuthForm from '@/components/auth/auth-form';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dog, CheckCircle, Mail, Lock, User, Phone } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useAuth } from "@/hooks/use-auth";
 
-const AuthPage: React.FC = () => {
-  const { user, isLoading } = useAuth();
+// Login form schema
+const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
-  // Redirect if user is already logged in
-  if (user && !isLoading) {
-    return <Redirect to="/" />;
+// Registration form schema
+const registerSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Please enter a valid email"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  phone: z.string().optional(),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
+const AuthPage = () => {
+  const [activeTab, setActiveTab] = useState<string>("login");
+  const { user, loginMutation, registerMutation } = useAuth();
+  const [location, navigate] = useLocation();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  // Login form
+  const loginForm = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  // Register form
+  const registerForm = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+      name: "",
+      phone: "",
+    },
+  });
+
+  // Handle login form submission
+  const onLoginSubmit = (data: LoginFormValues) => {
+    loginMutation.mutate(data);
+  };
+
+  // Handle registration form submission
+  const onRegisterSubmit = (data: RegisterFormValues) => {
+    registerMutation.mutate({
+      ...data,
+      role: "user", // Default role for new users
+    });
+  };
+
+  // If already logged in, don't render the auth page
+  if (user) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow py-12 bg-gray-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
-            <div className="md:w-1/2 max-w-md">
-              <AuthForm />
-            </div>
-            <div className="md:w-1/2 max-w-md">
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold text-neutral-dark mb-4">Welcome to AnimalSOS</h2>
-                <div className="mb-4">
-                  <svg
-                    className="w-16 h-16 text-primary mx-auto mb-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 512 512"
-                    fill="currentColor"
-                  >
-                    <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7 .9 78.5 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7c-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2C84.9 480 64 459.1 64 433.3v-1.6c0-10.4 1.6-20.8 5.2-30.5zM421.8 282.7c-24.5-14-29.1-51.7-10.2-84.1s54-47.3 78.5-33.3s29.1 51.7 10.2 84.1s-54 47.3-78.5 33.3zM310.1 189.7c-32.3-10.6-46.9-53.9-32.6-96.8s52.1-69.1 84.4-58.5s46.9 53.9 32.6 96.8s-52.1 69.1-84.4 58.5z" />
-                  </svg>
+    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md mb-5 text-center">
+        <div className="flex items-center justify-center">
+          <Dog className="h-10 w-10 text-primary" />
+          <h1 className="font-heading font-bold text-3xl text-neutral-800 ml-2">
+            Animal<span className="text-primary">SOS</span>
+          </h1>
+        </div>
+        <h2 className="mt-2 text-center text-2xl font-heading font-bold text-neutral-800">
+          {activeTab === "login" ? "Sign in to your account" : "Create a new account"}
+        </h2>
+      </div>
+
+      <div className="sm:mx-auto sm:w-full max-w-5xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Auth Form */}
+          <div className="bg-white py-8 px-4 shadow-md sm:rounded-lg sm:px-10">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="register">Register</TabsTrigger>
+              </TabsList>
+
+              {/* Login Form */}
+              <TabsContent value="login">
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input placeholder="Enter your username" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input type="password" placeholder="Enter your password" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <input
+                          id="remember-me"
+                          name="remember-me"
+                          type="checkbox"
+                          className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                        />
+                        <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                          Remember me
+                        </label>
+                      </div>
+
+                      <div className="text-sm">
+                        <a href="#" className="font-medium text-primary hover:text-primary-dark">
+                          Forgot password?
+                        </a>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-primary text-white py-2 hover:bg-primary-dark"
+                      disabled={loginMutation.isPending}
+                    >
+                      {loginMutation.isPending ? "Signing in..." : "Sign in"}
+                    </Button>
+                  </form>
+                </Form>
+
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <Button variant="outline" className="w-full py-2 px-4 border rounded-md flex justify-center items-center">
+                      <svg className="h-5 w-5 mr-2" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4Z" fill="white" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4ZM23.9972 8C15.1717 8 8 15.1717 8 23.9972C8 32.8227 15.1717 40 23.9972 40C32.8255 40 40 32.8227 40 23.9972C40 15.1717 32.8255 8 23.9972 8Z" fill="white" />
+                        <path d="M24 11L19.885 20.4882L10 20.4938L18.0577 26.3261L14.2354 36L24 30.5064L33.7646 36L29.9423 26.3261L38 20.4938L28.115 20.4882L24 11Z" fill="#4285F4" />
+                      </svg>
+                      <span>Sign in with Google</span>
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-neutral-medium mb-4">
-                  Join our platform to help animals in need. Report injured animals, find veterinary care, make donations, and connect with a community that cares.
-                </p>
-                <ul className="space-y-2 mb-4">
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-primary mt-0.5 mr-2"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+              </TabsContent>
+
+              {/* Register Form */}
+              <TabsContent value="register">
+                <Form {...registerForm}>
+                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                    <FormField
+                      control={registerForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Full Name</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input placeholder="Enter your full name" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={registerForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input type="email" placeholder="Enter your email" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={registerForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input placeholder="Choose a username" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={registerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input type="password" placeholder="Create a password" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={registerForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number (Optional)</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input placeholder="Enter your phone number" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-primary text-white py-2 hover:bg-primary-dark"
+                      disabled={registerMutation.isPending}
                     >
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Report animals in distress
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-primary mt-0.5 mr-2"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Find veterinary help nearby
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-primary mt-0.5 mr-2"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Support animal welfare through donations
-                  </li>
-                  <li className="flex items-start">
-                    <svg
-                      className="h-5 w-5 text-primary mt-0.5 mr-2"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    Browse and apply for pet adoption
-                  </li>
-                </ul>
-                <p className="text-sm text-neutral-medium">
-                  By creating an account, you're joining our mission to rescue, rehabilitate, and rehome animals in need.
-                </p>
+                      {registerMutation.isPending ? "Creating account..." : "Sign up"}
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Info Section */}
+          <div className="hidden md:block">
+            <div className="bg-primary bg-opacity-10 rounded-lg p-8 h-full flex flex-col justify-center">
+              <h3 className="text-2xl font-heading font-bold text-primary mb-4">Welcome to AnimalSOS</h3>
+              <p className="text-neutral-600 mb-6">
+                Join our community of animal lovers making a difference in the lives of animals in need.
+              </p>
+
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <span>Report injured, lost, or stray animals to get immediate help</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <span>Connect with NGOs and veterinarians in your area</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <span>Contribute to animal welfare causes through donations</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <span>Browse and adopt animals looking for a loving home</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <span>Connect with other animal lovers in our community forum</span>
+                </li>
+              </ul>
+
+              <div className="mt-8">
+                <div className="flex items-center justify-center">
+                  <img
+                    src="https://images.unsplash.com/photo-1548681528-6a5c45b66b42?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    alt="Dogs and cats"
+                    className="rounded-lg max-h-40 object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 };

@@ -2,28 +2,32 @@ import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./hooks/use-auth";
-import { ProtectedRoute } from "./lib/protected-route";
+
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
-import ReportPage from "@/pages/report-page";
-import VetFinderPage from "@/pages/vet-finder-page";
-import AdoptionPage from "@/pages/adoption-page";
-import DonationPage from "@/pages/donation-page";
-import CommunityPage from "@/pages/community-page";
+import ReportAnimal from "@/pages/report-animal";
+import FindVets from "@/pages/find-vets";
+import Adoption from "@/pages/adoption";
+import Donate from "@/pages/donate";
+import Community from "@/pages/community";
+import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
+import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/report" component={ReportPage} />
-      <Route path="/veterinarians" component={VetFinderPage} />
-      <Route path="/adoption" component={AdoptionPage} />
-      <Route path="/donate" component={DonationPage} />
-      <Route path="/community" component={CommunityPage} />
+      <ProtectedRoute path="/report-animal" component={ReportAnimal} />
+      <Route path="/find-vets" component={FindVets} />
+      <Route path="/adopt" component={Adoption} />
+      <Route path="/donate" component={Donate} />
+      <ProtectedRoute path="/community" component={Community} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -32,10 +36,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router />
-        <Toaster />
-      </AuthProvider>
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-1">
+          <Router />
+        </main>
+        <Footer />
+      </div>
+      <Toaster />
     </QueryClientProvider>
   );
 }

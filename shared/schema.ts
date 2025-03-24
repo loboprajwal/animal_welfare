@@ -1,198 +1,139 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// User model
+// User model with role-based access
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
-  fullName: text("full_name").notNull(),
+  name: text("name").notNull(),
   role: text("role").notNull().default("user"), // user, ngo, admin
-  avatarUrl: text("avatar_url"),
-  phoneNumber: text("phone_number"),
+  phone: text("phone"),
   address: text("address"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users)
-  .pick({
-    username: true,
-    password: true,
-    email: true,
-    fullName: true,
-    role: true,
-    phoneNumber: true,
-    address: true,
-  })
-  .refine((data) => data.password.length >= 6, {
-    message: "Password must be at least 6 characters long",
-    path: ["password"],
-  });
-
-// Animal report model
-export const animalReports = pgTable("animal_reports", {
+// Animal reports
+export const reports = pgTable("reports", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(), // User who reported
-  animalType: text("animal_type").notNull(), // Dog, Cat, Bird, Wildlife, Other
-  emergencyLevel: text("emergency_level").notNull(), // Critical, Urgent, Moderate, Low
+  userId: integer("user_id").notNull(),
+  animalType: text("animal_type").notNull(), // dog, cat, bird, etc.
   description: text("description").notNull(),
   location: text("location").notNull(),
   latitude: text("latitude"),
   longitude: text("longitude"),
-  status: text("status").notNull().default("pending"), // pending, in_progress, resolved
-  imageUrls: text("image_urls").array(),
-  contactNumber: text("contact_number"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  status: text("status").notNull().default("pending"), // pending, assigned, in_progress, rescued, closed
+  urgency: text("urgency").default("normal"), // normal, urgent
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertAnimalReportSchema = createInsertSchema(animalReports)
-  .pick({
-    userId: true,
-    animalType: true,
-    emergencyLevel: true,
-    description: true,
-    location: true,
-    latitude: true,
-    longitude: true,
-    imageUrls: true,
-    contactNumber: true,
-  });
-
-// Veterinarian model
-export const veterinarians = pgTable("veterinarians", {
+// Veterinarians
+export const vets = pgTable("vets", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   address: text("address").notNull(),
-  phoneNumber: text("phone_number").notNull(),
-  latitude: text("latitude").notNull(),
-  longitude: text("longitude").notNull(),
-  openingHours: text("opening_hours"),
-  services: text("services").array(),
-  isEmergency: boolean("is_emergency").default(false),
-  distance: text("distance"), // not stored, calculated on the fly
+  phone: text("phone").notNull(),
+  email: text("email"),
+  latitude: text("latitude"),
+  longitude: text("longitude"),
+  rating: integer("rating"),
+  isOpen: boolean("is_open").default(true),
 });
 
-export const insertVeterinarianSchema = createInsertSchema(veterinarians)
-  .pick({
-    name: true,
-    address: true,
-    phoneNumber: true,
-    latitude: true,
-    longitude: true,
-    openingHours: true,
-    services: true,
-    isEmergency: true,
-  });
-
-// Adoption model
+// Animals for adoption
 export const adoptions = pgTable("adoptions", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  type: text("type").notNull(), // Dog, Cat, Bird, etc.
+  type: text("type").notNull(), // dog, cat, bird, etc.
   breed: text("breed"),
   age: text("age").notNull(),
-  size: text("size").notNull(), // Small, Medium, Large
-  gender: text("gender").notNull(), // Male, Female
+  gender: text("gender").notNull(),
   description: text("description").notNull(),
-  imageUrls: text("image_urls").array(),
-  shelter: text("shelter").notNull(),
+  imageUrl: text("image_url"),
   status: text("status").notNull().default("available"), // available, pending, adopted
-  distance: text("distance"), // not stored, calculated on the fly
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertAdoptionSchema = createInsertSchema(adoptions)
-  .pick({
-    name: true,
-    type: true,
-    breed: true,
-    age: true,
-    size: true,
-    gender: true,
-    description: true,
-    imageUrls: true,
-    shelter: true,
-    status: true,
-  });
-
-// Donation model
+// Donation campaigns
 export const donations = pgTable("donations", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  amount: text("amount").notNull(),
-  donorName: text("donor_name").notNull(),
-  donorEmail: text("donor_email").notNull(),
-  isRecurring: boolean("is_recurring").default(false),
-  status: text("status").notNull().default("completed"), // pending, completed, failed
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  goalAmount: integer("goal_amount").notNull(),
+  raisedAmount: integer("raised_amount").default(0),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertDonationSchema = createInsertSchema(donations)
-  .pick({
-    userId: true,
-    amount: true,
-    donorName: true,
-    donorEmail: true,
-    isRecurring: true,
-  });
-
-// Forum post model
-export const forumPosts = pgTable("forum_posts", {
+// Forum posts
+export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  category: text("category").notNull(), // Discussion, Question, Success Story
-  likes: integer("likes").default(0),
-  commentCount: integer("comment_count").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertForumPostSchema = createInsertSchema(forumPosts)
-  .pick({
-    userId: true,
-    title: true,
-    content: true,
-    category: true,
-  });
-
-// Forum comment model
-export const forumComments = pgTable("forum_comments", {
-  id: serial("id").primaryKey(),
-  postId: integer("post_id").notNull(),
-  userId: integer("user_id").notNull(),
-  content: text("content").notNull(),
-  likes: integer("likes").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// Define schemas for insertion
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
 });
 
-export const insertForumCommentSchema = createInsertSchema(forumComments)
-  .pick({
-    postId: true,
-    userId: true,
-    content: true,
-  });
+export const insertReportSchema = createInsertSchema(reports).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
-// Type exports
-export type User = typeof users.$inferSelect;
+export const insertVetSchema = createInsertSchema(vets).omit({
+  id: true,
+});
+
+export const insertAdoptionSchema = createInsertSchema(adoptions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDonationSchema = createInsertSchema(donations).omit({
+  id: true,
+  raisedAmount: true,
+  createdAt: true,
+});
+
+export const insertPostSchema = createInsertSchema(posts).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Define types
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
 
-export type AnimalReport = typeof animalReports.$inferSelect;
-export type InsertAnimalReport = z.infer<typeof insertAnimalReportSchema>;
+export type InsertReport = z.infer<typeof insertReportSchema>;
+export type Report = typeof reports.$inferSelect;
 
-export type Veterinarian = typeof veterinarians.$inferSelect;
-export type InsertVeterinarian = z.infer<typeof insertVeterinarianSchema>;
+export type InsertVet = z.infer<typeof insertVetSchema>;
+export type Vet = typeof vets.$inferSelect;
 
-export type Adoption = typeof adoptions.$inferSelect;
 export type InsertAdoption = z.infer<typeof insertAdoptionSchema>;
+export type Adoption = typeof adoptions.$inferSelect;
 
-export type Donation = typeof donations.$inferSelect;
 export type InsertDonation = z.infer<typeof insertDonationSchema>;
+export type Donation = typeof donations.$inferSelect;
 
-export type ForumPost = typeof forumPosts.$inferSelect;
-export type InsertForumPost = z.infer<typeof insertForumPostSchema>;
+export type InsertPost = z.infer<typeof insertPostSchema>;
+export type Post = typeof posts.$inferSelect;
 
-export type ForumComment = typeof forumComments.$inferSelect;
-export type InsertForumComment = z.infer<typeof insertForumCommentSchema>;
+// Enhanced login schema with validation
+export const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export type LoginData = z.infer<typeof loginSchema>;
