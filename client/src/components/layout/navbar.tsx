@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
 import MobileMenu from "./mobile-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,7 +14,9 @@ import { Dog, Menu, LogOut, User as UserIcon } from "lucide-react";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, logoutMutation } = useAuth();
+  // Temporarily disable authentication until it's properly set up
+  const user = null;
+  const logoutMutation = { mutate: () => console.log('Logout clicked') };
   const [location] = useLocation();
 
   const handleLogout = () => {
