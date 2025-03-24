@@ -1,0 +1,46 @@
+Build "AnimalSOS" - An Animal Rescue & Welfare Platform**  
+
+**Objective:**  
+Develop a **full-stack web application** that helps users report and track **injured, lost, or stray animals**, connect with **NGOs & veterinarians**, donate to animal welfare causes, and facilitate **pet adoption**.  
+
+---
+
+### **🔹 Tech Stack:**  
+- **Frontend:** React.js, Tailwind CSS, React Router  
+- **Backend:** Node.js, Express.js, MongoDB (Mongoose ORM)  
+- **Authentication:** JWT, Google OAuth  
+- **APIs:** Google Maps API (for nearby vets & reports), Stripe/Razorpay (for donations)  
+- **Hosting:** Vercel (frontend), Render (backend)  
+
+---
+
+### **🔹 Core Features:**  
+1️⃣ **User Authentication:** Signup/Login (Email, Google OAuth), Role-based Access (User, NGO, Admin)  
+2️⃣ **Report & Track Animals:** Users submit animal distress reports with location & image uploads  
+3️⃣ **Find Nearby Veterinarians:** Google Maps API integration for nearest vet clinics  
+4️⃣ **Donation System:** Secure payments via Stripe/Razorpay for NGOs & shelters  
+5️⃣ **Adoption Portal:** List, browse, and adopt animals  
+6️⃣ **Community Forum:** Users share stories, ask questions, and spread awareness  
+7️⃣ **Admin Dashboard:** Manage users, animal reports, donations, and adoption requests  
+
+---
+
+### **🔹 Steps to Implement:**  
+✅ Set up **MongoDB & Express.js** backend with authentication and RESTful APIs  
+✅ Create **React frontend** with Tailwind CSS for a modern UI  
+✅ Implement **Google Maps API** to locate nearby vets and report locations  
+✅ Add **payment integration** for donations  
+✅ Deploy the app using **Vercel (frontend) & Render (backend)**  
+
+---
+
+### **Expected Output:**  
+A **responsive, user-friendly, and scalable** animal rescue platform where users can:  
+✔ **Report** injured or lost animals  
+✔ **Locate veterinarians** nearby  
+✔ **Donate** to animal welfare NGOs  
+✔ **Adopt** pets & find loving homes  
+
+---
+
+🔥 **Generate the full project structure, setup MongoDB models, and implement APIs automatically!** Let me know if you need help debugging or expanding features! 🚀🐾
