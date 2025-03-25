@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="bg-primary bg-opacity-10 py-12 md:py-20">
+    <section className="bg-primary py-12 md:py-20">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h1 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl text-neutral-800 leading-tight mb-4">
-              <span className="text-primary">Rescue, Protect, Care</span>
+            <h1 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-4">
+              Rescue, Protect, Care
             </h1>
-            <p className="text-lg text-neutral-600 mb-8">
+            <p className="text-lg text-white text-opacity-90 mb-8">
               Report injured animals, find veterinarians, donate to welfare causes, and give pets a loving home - all in one platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
