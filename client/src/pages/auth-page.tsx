@@ -17,7 +17,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 // Login form schema
 const loginSchema = z.object({
@@ -39,15 +40,10 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const AuthPage = () => {
   const [activeTab, setActiveTab] = useState<string>("login");
-  const { user, loginMutation, registerMutation } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [location, navigate] = useLocation();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+  const { toast } = useToast();
 
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -71,22 +67,55 @@ const AuthPage = () => {
   });
 
   // Handle login form submission
-  const onLoginSubmit = (data: LoginFormValues) => {
-    loginMutation.mutate(data);
+  const onLoginSubmit = async (data: LoginFormValues) => {
+    try {
+      setIsLoggingIn(true);
+      const res = await apiRequest("POST", "/api/login", data);
+      const user = await res.json();
+      
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${user.name}!`,
+      });
+      
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   // Handle registration form submission
-  const onRegisterSubmit = (data: RegisterFormValues) => {
-    registerMutation.mutate({
-      ...data,
-      role: "user", // Default role for new users
-    });
+  const onRegisterSubmit = async (data: RegisterFormValues) => {
+    try {
+      setIsRegistering(true);
+      const res = await apiRequest("POST", "/api/register", {
+        ...data,
+        role: "user", // Default role for new users
+      });
+      const user = await res.json();
+      
+      toast({
+        title: "Registration successful",
+        description: `Welcome to AnimalSOS, ${user.name}!`,
+      });
+      
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRegistering(false);
+    }
   };
-
-  // If already logged in, don't render the auth page
-  if (user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -173,9 +202,9 @@ const AuthPage = () => {
                     <Button
                       type="submit"
                       className="w-full bg-primary text-white py-2 hover:bg-primary-dark"
-                      disabled={loginMutation.isPending}
+                      disabled={isLoggingIn}
                     >
-                      {loginMutation.isPending ? "Signing in..." : "Sign in"}
+                      {isLoggingIn ? "Signing in..." : "Sign in"}
                     </Button>
                   </form>
                 </Form>
@@ -295,9 +324,9 @@ const AuthPage = () => {
                     <Button
                       type="submit"
                       className="w-full bg-primary text-white py-2 hover:bg-primary-dark"
-                      disabled={registerMutation.isPending}
+                      disabled={isRegistering}
                     >
-                      {registerMutation.isPending ? "Creating account..." : "Sign up"}
+                      {isRegistering ? "Creating account..." : "Sign up"}
                     </Button>
                   </form>
                 </Form>
