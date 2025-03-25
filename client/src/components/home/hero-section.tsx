@@ -8,7 +8,7 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl text-neutral-800 leading-tight mb-4">
-              Help Save <span className="text-primary">Animals</span> In Need
+              <span className="text-primary">Rescue, Protect, Care</span>
             </h1>
             <p className="text-lg text-neutral-600 mb-8">
               Report injured animals, find veterinarians, donate to welfare causes, and give pets a loving home - all in one platform.
@@ -33,8 +33,8 @@ const HeroSection = () => {
           </div>
           <div className="hidden lg:block">
             <img
-              src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-              alt="Happy dog being rescued"
+              src="https://images.unsplash.com/photo-1541687664581-9380748af0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+              alt="Injured dog in need of help"
               className="rounded-lg shadow-lg object-cover w-full h-[400px]"
             />
           </div>
