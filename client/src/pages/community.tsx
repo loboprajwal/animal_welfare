@@ -4,8 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Post, User } from "@shared/schema";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/use-auth";
+import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,8 +48,13 @@ type PostFormValues = z.infer<typeof postFormSchema>;
 
 const CommunityPage = () => {
   const [activeTab, setActiveTab] = useState("all");
-  const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Get the current user directly instead of using useAuth
+  const { data: user } = useQuery<User | null>({
+    queryKey: ["/api/user"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
 
@@ -152,7 +156,8 @@ const CommunityPage = () => {
   };
 
   // Format date
-  const formatDate = (dateString: Date) => {
+  const formatDate = (dateString: Date | null) => {
+    if (!dateString) return "Unknown date";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
