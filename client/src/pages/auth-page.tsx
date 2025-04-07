@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dog, CheckCircle, Mail, Lock, User, Phone } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dog, CheckCircle, Mail, Lock, User, Phone, MapPin, Users, Building, Shield } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -16,6 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -33,6 +35,8 @@ const registerSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   name: z.string().min(2, "Name must be at least 2 characters"),
   phone: z.string().optional(),
+  role: z.enum(["user", "ngo", "admin"]).default("user"),
+  address: z.string().optional(),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -63,6 +67,8 @@ const AuthPage = () => {
       email: "",
       name: "",
       phone: "",
+      role: "user",
+      address: "",
     },
   });
 
@@ -93,16 +99,32 @@ const AuthPage = () => {
   // Handle registration form submission
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     try {
+      // Validate NGO address
+      if (data.role === "ngo" && (!data.address || data.address.trim() === "")) {
+        toast({
+          title: "Registration error",
+          description: "Address is required for NGO/Rescue Organization accounts",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setIsRegistering(true);
-      const res = await apiRequest("POST", "/api/register", {
-        ...data,
-        role: "user", // Default role for new users
-      });
+      const res = await apiRequest("POST", "/api/register", data);
       const user = await res.json();
+      
+      let welcomeMessage = "Welcome to AnimalSOS";
+      if (data.role === "user") {
+        welcomeMessage = `Welcome to AnimalSOS, ${user.name}! You can now report animals in need and find veterinary help.`;
+      } else if (data.role === "ngo") {
+        welcomeMessage = `Welcome to AnimalSOS, ${user.name}! Your organization can now respond to animal rescue requests.`;
+      } else if (data.role === "admin") {
+        welcomeMessage = `Welcome to AnimalSOS, ${user.name}! You have full administrative access.`;
+      }
       
       toast({
         title: "Registration successful",
-        description: `Welcome to AnimalSOS, ${user.name}!`,
+        description: welcomeMessage,
       });
       
       navigate("/");
@@ -314,6 +336,64 @@ const AuthPage = () => {
                             <div className="relative">
                               <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                               <Input placeholder="Enter your phone number" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={registerForm.control}
+                      name="role"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Account Type</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select your account type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="user">
+                                <div className="flex items-center">
+                                  <User className="h-4 w-4 mr-2 text-primary" />
+                                  <span>Individual User</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="ngo">
+                                <div className="flex items-center">
+                                  <Building className="h-4 w-4 mr-2 text-secondary" />
+                                  <span>NGO/Rescue Organization</span>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="admin">
+                                <div className="flex items-center">
+                                  <Shield className="h-4 w-4 mr-2 text-red-500" />
+                                  <span>Admin</span>
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            This determines what you can do on the platform
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={registerForm.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address {field.value === "ngo" ? "(Required)" : "(Optional)"}</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                              <Input placeholder="Enter your address" className="pl-10" {...field} />
                             </div>
                           </FormControl>
                           <FormMessage />
