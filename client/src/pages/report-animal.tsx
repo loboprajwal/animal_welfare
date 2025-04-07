@@ -4,8 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-// Temporarily disable auth
-// import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { insertReportSchema } from "@shared/schema";
@@ -60,8 +59,7 @@ const reportFormSchema = insertReportSchema.extend({
 type ReportFormValues = z.infer<typeof reportFormSchema>;
 
 const ReportAnimal = () => {
-  // Temporarily mock user until auth is fixed
-  const user = null;
+  const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [previewImage, setPreviewImage] = useState<string | null>(null);

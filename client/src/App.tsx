@@ -12,8 +12,10 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import NotFound from "@/pages/not-found";
 import { ProtectedRoute } from "./lib/protected-route";
 
+import { User } from "@shared/schema";
+
 // Create a context for authentication status
-const AuthRouterContext = createContext<{user: any | null; isLoading: boolean}>({
+const AuthRouterContext = createContext<{user: User | null; isLoading: boolean}>({
   user: null,
   isLoading: false
 });
@@ -51,8 +53,10 @@ function App() {
   
   try {
     // Try to get auth state, but don't throw if it fails
-    const { user, isLoading } = useAuth();
-    authState = { user, isLoading };
+    const authData = useAuth();
+    if (authData) {
+      authState = { user: authData.user, isLoading: authData.isLoading };
+    }
   } catch (error) {
     console.log("Auth context not available yet, using fallback");
   }
