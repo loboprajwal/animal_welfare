@@ -1,15 +1,13 @@
 import { 
-  users, type User, type InsertUser,
-  reports, type Report, type InsertReport,
-  vets, type Vet, type InsertVet,
-  adoptions, type Adoption, type InsertAdoption,
-  donations, type Donation, type InsertDonation,
-  posts, type Post, type InsertPost
+  type User, type InsertUser,
+  type Report, type InsertReport,
+  type Vet, type InsertVet,
+  type Adoption, type InsertAdoption,
+  type Donation, type InsertDonation,
+  type Post, type InsertPost
 } from "@shared/schema";
 import session from "express-session";
-import createMemoryStore from "memorystore";
-import { MongoStorage } from './mongo-storage';
-import { sessionStore } from './db';
+import { MemStorage } from './mem-storage';
 
 // Define storage interface with all required CRUD operations
 export interface IStorage {
@@ -60,22 +58,8 @@ export interface IStorage {
   updatePost(id: number, post: Partial<Post>): Promise<Post | undefined>;
 }
 
-// Initialize a new MongoDB storage instance
-const mongoStorage = new MongoStorage();
+// Initialize an in-memory storage instance for development
+const memStorage = new MemStorage();
 
-// Seed initial vet data when the app starts
-async function initializeStorage() {
-  try {
-    // Seed initial vets
-    await mongoStorage.seedVets();
-    console.log('Storage initialized with seed data');
-  } catch (error) {
-    console.error('Error initializing storage:', error);
-  }
-}
-
-// Run initialization
-initializeStorage();
-
-// Export the MongoDB storage implementation
-export const storage = mongoStorage;
+// Export the in-memory storage implementation
+export const storage = memStorage;

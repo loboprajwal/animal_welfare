@@ -1,7 +1,9 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import session from "express-session";
-import MemoryStore from "memorystore";
 import { User, Report, Vet, Adoption } from '@shared/schema';
+import { sessionStore } from './mem-storage';
+
+// Export the session store from mem-storage
+export { sessionStore };
 
 // Singleton pattern for MongoDB connection
 let client: MongoClient | null = null;
@@ -36,12 +38,6 @@ export async function connectToMongoDB() {
     return client.db();
   }
 }
-
-// Memory store for sessions
-const MemoryStoreSession = MemoryStore(session);
-export const sessionStore = new MemoryStoreSession({
-  checkPeriod: 86400000, // prune expired entries every 24h
-});
 
 export async function getDb() {
   if (!client) {

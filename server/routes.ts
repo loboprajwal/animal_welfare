@@ -8,6 +8,15 @@ import { z } from "zod";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
+  
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "up", 
+      message: "Server is running with in-memory storage", 
+      timestamp: new Date().toISOString() 
+    });
+  });
 
   // Animal Reports API
   app.get("/api/reports", async (req, res) => {
