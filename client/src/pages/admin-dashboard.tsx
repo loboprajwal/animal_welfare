@@ -112,8 +112,8 @@ const AdminDashboard = () => {
   const totalAdoptions = adoptions?.length || 0;
   const availablePets = adoptions?.filter(adoption => adoption.status === "available").length || 0;
   
-  const totalDonations = donations?.reduce((acc, donation) => acc + donation.raisedAmount, 0) || 0;
-  const donationGoals = donations?.reduce((acc, donation) => acc + donation.goalAmount, 0) || 0;
+  const totalDonations = donations?.reduce((acc, donation) => acc + (donation.raisedAmount || 0), 0) || 0;
+  const donationGoals = donations?.reduce((acc, donation) => acc + (donation.goalAmount || 0), 0) || 0;
   const donationProgress = donationGoals ? Math.round((totalDonations / donationGoals) * 100) : 0;
 
   // Chart data
@@ -165,7 +165,7 @@ const AdminDashboard = () => {
   };
 
   if (user?.role !== "admin") {
-    return null; // Prevent rendering if not admin
+    return <div></div>; // Prevent rendering if not admin
   }
 
   return (
@@ -390,7 +390,7 @@ const AdminDashboard = () => {
                           <TableCell>{report.location}</TableCell>
                           <TableCell>{getStatusBadge(report.status)}</TableCell>
                           <TableCell>
-                            {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                            {report.createdAt ? formatDistanceToNow(new Date(report.createdAt), { addSuffix: true }) : 'N/A'}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
@@ -483,7 +483,7 @@ const AdminDashboard = () => {
                           )}
                         </TableCell>
                         <TableCell>
-                          {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                          {report.createdAt ? formatDistanceToNow(new Date(report.createdAt), { addSuffix: true }) : 'N/A'}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -707,13 +707,15 @@ const AdminDashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {donations?.map((donation) => {
-                      const progress = Math.round((donation.raisedAmount / donation.goalAmount) * 100);
+                      const raisedAmount = donation.raisedAmount || 0;
+                      const goalAmount = donation.goalAmount || 0;
+                      const progress = goalAmount > 0 ? Math.round((raisedAmount / goalAmount) * 100) : 0;
                       return (
                         <TableRow key={donation.id}>
                           <TableCell className="font-medium">{donation.id}</TableCell>
                           <TableCell>{donation.title}</TableCell>
-                          <TableCell>{formatCurrency(donation.goalAmount)}</TableCell>
-                          <TableCell>{formatCurrency(donation.raisedAmount)}</TableCell>
+                          <TableCell>{formatCurrency(goalAmount)}</TableCell>
+                          <TableCell>{formatCurrency(raisedAmount)}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className="w-24 h-2 bg-neutral-100 rounded-full overflow-hidden">
@@ -726,7 +728,7 @@ const AdminDashboard = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            {formatDistanceToNow(new Date(donation.createdAt), { addSuffix: true })}
+                            {donation.createdAt ? formatDistanceToNow(new Date(donation.createdAt), { addSuffix: true }) : 'N/A'}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">

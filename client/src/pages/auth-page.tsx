@@ -84,7 +84,14 @@ const AuthPage = () => {
         description: `Welcome back, ${user.name}!`,
       });
       
-      navigate("/");
+      // Redirect based on role
+      if (user.role === 'admin') {
+        navigate("/admin");
+      } else if (user.role === 'ngo') {
+        navigate("/");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast({
         title: "Login failed",
@@ -127,7 +134,14 @@ const AuthPage = () => {
         description: welcomeMessage,
       });
       
-      navigate("/");
+      // Redirect based on user role
+      if (user.role === 'admin') {
+        navigate("/admin");
+      } else if (user.role === 'ngo') {
+        navigate("/");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       toast({
         title: "Registration failed",
