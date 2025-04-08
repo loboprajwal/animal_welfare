@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { insertReportSchema } from "@shared/schema";
@@ -59,7 +58,6 @@ const reportFormSchema = insertReportSchema.extend({
 type ReportFormValues = z.infer<typeof reportFormSchema>;
 
 const ReportAnimal = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -76,19 +74,12 @@ const ReportAnimal = () => {
       location: "",
       urgency: "normal",
       imageUrl: "",
-      userId: user?.id || 0,
+      userId: 1, // Default user ID since we're not using auth in this simplified version
       latitude: "",
       longitude: "",
       status: "pending",
     },
   });
-
-  // Set userId when user data is available
-  useEffect(() => {
-    if (user) {
-      form.setValue("userId", user.id);
-    }
-  }, [user, form]);
 
   // Mock image upload (in a real app, this would upload to a server or cloud storage)
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

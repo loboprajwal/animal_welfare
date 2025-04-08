@@ -2,7 +2,6 @@ import { Loader2 } from "lucide-react";
 import { Route, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
-import { useAuthRouter } from "@/App";
 
 export function ProtectedRoute({
   path,
@@ -13,10 +12,9 @@ export function ProtectedRoute({
   component: () => React.JSX.Element | null;
   roleRequired?: 'user' | 'ngo' | 'admin';
 }) {
-  // Try to get auth from the router context first, then from the global context
-  const authRouter = useAuthRouter();
+  // Use the auth context directly
   const auth = useAuth();
-  const { user, isLoading } = authRouter.user !== null ? authRouter : auth;
+  const { user, isLoading } = auth;
   const [, setLocation] = useLocation();
 
   useEffect(() => {
