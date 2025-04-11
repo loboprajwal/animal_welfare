@@ -6,6 +6,7 @@ import ReportAnimal from "./pages/report-animal";
 import Adoption from "./pages/adoption";
 import VetFinder from "./pages/find-vets";
 import AdminDashboard from "./pages/admin-dashboard";
+import NGODashboard from "./pages/ngo-dashboard";
 import NotFound from "./pages/not-found";
 
 function App() {
@@ -30,19 +31,23 @@ function App() {
     }
     
     checkAuth();
-  }, [location]);
+  }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    const protectedRoutes = ['/report-animal', '/find-vets', '/adopt', '/admin'];
+    const protectedRoutes = ['/report-animal', '/find-vets', '/adopt', '/admin', '/ngo-dashboard'];
     
     if (!isLoading && !user && protectedRoutes.includes(location)) {
       setLocation('/auth');
     }
     
-    // Redirect admin users to admin dashboard
-    if (user?.role === 'admin' && location === '/') {
-      setLocation('/admin');
+    // Redirect users based on role after login
+    if (!isLoading && user && location === '/') {
+      if (user.role === 'admin') {
+        setLocation('/admin');
+      } else if (user.role === 'ngo') {
+        setLocation('/ngo-dashboard');
+      }
     }
   }, [user, isLoading, location, setLocation]);
 
@@ -79,12 +84,25 @@ function App() {
               display: "flex",
               gap: "15px"
             }}>
-              <a href="/" style={{ color: "white", textDecoration: "none" }}>Home</a>
-              <a href="/report-animal" style={{ color: "white", textDecoration: "none" }}>Report Animal</a>
-              <a href="/find-vets" style={{ color: "white", textDecoration: "none" }}>Find Vet</a>
-              {user?.role === 'admin' && (
-                <a href="/admin" style={{ color: "white", textDecoration: "none" }}>Admin</a>
+              {user.role === 'user' && (
+                <>
+                  <a href="/" style={{ color: "white", textDecoration: "none" }}>Home</a>
+                  <a href="/report-animal" style={{ color: "white", textDecoration: "none" }}>Report Animal</a>
+                  <a href="/find-vets" style={{ color: "white", textDecoration: "none" }}>Find Vet</a>
+                </>
               )}
+              
+              {user.role === 'ngo' && (
+                <>
+                  <a href="/ngo-dashboard" style={{ color: "white", textDecoration: "none" }}>Dashboard</a>
+                  <a href="/find-vets" style={{ color: "white", textDecoration: "none" }}>Find Vet</a>
+                </>
+              )}
+              
+              {user.role === 'admin' && (
+                <a href="/admin" style={{ color: "white", textDecoration: "none" }}>Admin Dashboard</a>
+              )}
+              
               <button 
                 onClick={async () => {
                   await fetch('/api/logout', {method: 'POST'});
@@ -108,7 +126,15 @@ function App() {
       <main style={{flex: 1}}>
         <Switch>
           <Route path="/" component={HomePage} />
-          <Route path="/auth" component={AuthPage} />
+          <Route path="/auth">
+            {() => user ? (
+              user.role === 'admin' ? 
+                <AdminDashboard user={user} /> : 
+                user.role === 'ngo' ? 
+                  <NGODashboard user={user} /> : 
+                  <HomePage />
+            ) : <AuthPage />}
+          </Route>
           <Route path="/report-animal">
             {() => user ? <ReportAnimal user={user} /> : <AuthPage />}
           </Route>
@@ -117,6 +143,9 @@ function App() {
           </Route>
           <Route path="/find-vets">
             {() => user ? <VetFinder user={user} /> : <AuthPage />}
+          </Route>
+          <Route path="/ngo-dashboard">
+            {() => (user && user.role === 'ngo') ? <NGODashboard user={user} /> : <AuthPage />}
           </Route>
           <Route path="/admin">
             {() => (user && user.role === 'admin') ? <AdminDashboard user={user} /> : <AuthPage />}

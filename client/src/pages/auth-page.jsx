@@ -21,6 +21,14 @@ const AuthPage = () => {
     address: ""
   });
   const [, navigate] = useLocation();
+  
+  // Theme colors
+  const colors = {
+    primary: "#4CAF50",
+    primaryDark: "#388E3C",
+    primaryLight: "#81C784",
+    background: "#E8F5E9"
+  };
 
   useEffect(() => {
     document.title = "Sign In / Register - AnimalSOS";
@@ -105,6 +113,8 @@ const AuthPage = () => {
       // Redirect based on role
       if (user.role === 'admin') {
         navigate("/admin");
+      } else if (user.role === 'ngo') {
+        navigate("/ngo-dashboard");
       } else {
         navigate("/");
       }
@@ -150,9 +160,16 @@ const AuthPage = () => {
       // Redirect based on user role
       if (user.role === 'admin') {
         navigate("/admin");
+      } else if (user.role === 'ngo') {
+        navigate("/ngo-dashboard");
       } else {
         navigate("/");
       }
+      
+      // Reload the page to ensure proper auth state
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     } catch (error) {
       setErrorMessage(error.message || "Registration failed");
     } finally {
@@ -163,7 +180,7 @@ const AuthPage = () => {
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#f9fafb",
+      backgroundColor: colors.background,
       display: "flex",
       flexDirection: "column",
       justifyContent: "center",
@@ -190,7 +207,7 @@ const AuthPage = () => {
             fontSize: "24px",
             color: "#1f2937"
           }}>
-            Animal<span style={{ color: "#4A90E2" }}>SOS</span>
+            Animal<span style={{ color: colors.primary }}>SOS</span>
           </h1>
         </div>
         <h2 style={{
@@ -198,7 +215,7 @@ const AuthPage = () => {
           textAlign: "center",
           fontSize: "24px",
           fontWeight: "bold",
-          color: "#1f2937"
+          color: colors.primaryDark
         }}>
           {activeTab === "login" ? "Sign in to your account" : "Create a new account"}
         </h2>
@@ -229,8 +246,8 @@ const AuthPage = () => {
                 padding: "12px",
                 textAlign: "center",
                 fontWeight: activeTab === "login" ? "bold" : "normal",
-                borderBottom: activeTab === "login" ? "2px solid #4A90E2" : "none",
-                color: activeTab === "login" ? "#4A90E2" : "#6b7280",
+                borderBottom: activeTab === "login" ? `2px solid ${colors.primary}` : "none",
+                color: activeTab === "login" ? colors.primary : "#6b7280",
                 backgroundColor: "transparent",
                 border: "none",
                 cursor: "pointer"
@@ -245,8 +262,8 @@ const AuthPage = () => {
                 padding: "12px",
                 textAlign: "center",
                 fontWeight: activeTab === "register" ? "bold" : "normal",
-                borderBottom: activeTab === "register" ? "2px solid #4A90E2" : "none",
-                color: activeTab === "register" ? "#4A90E2" : "#6b7280",
+                borderBottom: activeTab === "register" ? `2px solid ${colors.primary}` : "none",
+                color: activeTab === "register" ? colors.primary : "#6b7280",
                 backgroundColor: "transparent",
                 border: "none",
                 cursor: "pointer"
