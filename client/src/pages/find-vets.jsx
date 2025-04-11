@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 
-const FindVets = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+const FindVets = ({ user }) => {
+  const [pincode, setPincode] = useState("");
   const [vets, setVets] = useState([]);
   const [filteredVets, setFilteredVets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
   useEffect(() => {
     document.title = "Find Veterinarians - AnimalSOS";
@@ -20,7 +21,7 @@ const FindVets = () => {
       }
       const data = await response.json();
       setVets(data);
-      setFilteredVets(data);
+      // Don't set filtered vets yet until search is performed
     } catch (error) {
       setError(error.message || "Something went wrong");
     } finally {
@@ -28,22 +29,23 @@ const FindVets = () => {
     }
   };
 
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
+  const searchByPincode = () => {
+    setSearchPerformed(true);
+    
+    if (!pincode || pincode.trim() === "") {
       setFilteredVets(vets);
-    } else {
-      const filtered = vets.filter(
-        (vet) =>
-          vet.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          vet.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (vet.specializations &&
-            vet.specializations.some((spec) =>
-              spec.toLowerCase().includes(searchQuery.toLowerCase())
-            ))
-      );
-      setFilteredVets(filtered);
+      return;
     }
-  }, [searchQuery, vets]);
+    
+    // Filter vets by pincode 
+    // In a real app, you might want to use a distance API here
+    const filtered = vets.filter(vet => {
+      // Check if address contains the pincode
+      return vet.address.includes(pincode);
+    });
+    
+    setFilteredVets(filtered);
+  };
 
   const getDirections = (vet) => {
     if (vet.latitude && vet.longitude) {
@@ -59,10 +61,6 @@ const FindVets = () => {
         "_blank"
       );
     }
-  };
-
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
   };
 
   return (
@@ -93,16 +91,24 @@ const FindVets = () => {
         padding: "24px",
         marginBottom: "32px"
       }}>
+        <h3 style={{
+          fontSize: "18px",
+          fontWeight: "bold",
+          marginBottom: "16px",
+          color: "#4CAF50"
+        }}>
+          Search for Veterinarians by Pincode
+        </h3>
         <div style={{
           display: "flex",
           gap: "16px",
-          marginBottom: "24px"
+          marginBottom: "16px"
         }}>
           <input
             type="text"
-            placeholder="Search by name, location or specialization..."
-            value={searchQuery}
-            onChange={handleSearch}
+            placeholder="Enter your pincode..."
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)}
             style={{
               flex: 1,
               padding: "12px",
@@ -111,17 +117,27 @@ const FindVets = () => {
               fontSize: "16px"
             }}
           />
-          <button style={{
-            backgroundColor: "#4A90E2",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            padding: "0 20px",
-            cursor: "pointer"
-          }}>
-            Search
+          <button 
+            onClick={searchByPincode}
+            style={{
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              padding: "0 20px",
+              cursor: "pointer",
+              fontWeight: "500"
+            }}
+          >
+            Find Vets
           </button>
         </div>
+        <p style={{ 
+          color: "#666", 
+          fontSize: "14px"
+        }}>
+          Enter your pincode to find veterinary clinics in your area
+        </p>
       </div>
 
       {isLoading ? (
@@ -140,6 +156,15 @@ const FindVets = () => {
           borderRadius: "8px"
         }}>
           <p>{error}</p>
+        </div>
+      ) : !searchPerformed ? (
+        <div style={{
+          textAlign: "center",
+          padding: "32px",
+          backgroundColor: "#E8F5E9",
+          borderRadius: "8px"
+        }}>
+          <p style={{ color: "#2E7D32" }}>Enter your pincode and click "Find Vets" to see veterinarians in your area</p>
         </div>
       ) : filteredVets.length === 0 ? (
         <div style={{

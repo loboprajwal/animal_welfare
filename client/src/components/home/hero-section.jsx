@@ -3,7 +3,7 @@ import { Link } from "wouter";
 const HeroSection = () => {
   return (
     <section style={{
-      backgroundColor: "#4A90E2",
+      backgroundColor: "#4CAF50", // Light green theme
       padding: "48px 0",
       textAlign: "center"
     }}>
@@ -37,10 +37,26 @@ const HeroSection = () => {
           alignItems: "center",
           justifyContent: "center"
         }}>
-          <Link href="/report-animal">
+          <Link href="/auth">
             <button style={{
               backgroundColor: "white",
-              color: "#4A90E2",
+              color: "#4CAF50",
+              padding: "16px 24px",
+              fontSize: "16px",
+              fontWeight: "500",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              width: "250px"
+            }}>
+              Sign In / Register
+            </button>
+          </Link>
+          <Link href="/auth">
+            <button style={{
+              backgroundColor: "#388E3C",
+              color: "white",
               padding: "16px 24px",
               fontSize: "16px",
               fontWeight: "500",
@@ -53,9 +69,9 @@ const HeroSection = () => {
               Report an Animal
             </button>
           </Link>
-          <Link href="/find-vets">
+          <Link href="/auth">
             <button style={{
-              backgroundColor: "#FF6B6B",
+              backgroundColor: "#81C784",
               color: "white",
               padding: "16px 24px",
               fontSize: "16px",
@@ -67,21 +83,6 @@ const HeroSection = () => {
               width: "250px"
             }}>
               Find a Vet
-            </button>
-          </Link>
-          <Link href="/auth">
-            <button style={{
-              backgroundColor: "transparent",
-              color: "white",
-              padding: "16px 24px",
-              fontSize: "16px",
-              fontWeight: "500",
-              border: "1px solid white",
-              borderRadius: "8px",
-              cursor: "pointer",
-              width: "250px"
-            }}>
-              Sign In / Register
             </button>
           </Link>
         </div>
