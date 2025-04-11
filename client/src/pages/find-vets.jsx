@@ -264,7 +264,7 @@ const FindVets = ({ user }) => {
                     onClick={() => getDirections(vet)}
                     style={{
                       flex: 1,
-                      backgroundColor: "#4A90E2",
+                      backgroundColor: "#4CAF50",
                       color: "white",
                       border: "none",
                       borderRadius: "4px",

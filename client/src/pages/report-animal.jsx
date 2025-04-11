@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 
-const ReportAnimal = () => {
+const ReportAnimal = ({ user }) => {
   const [, navigate] = useLocation();
   const [formData, setFormData] = useState({
     animalType: "",
@@ -9,11 +9,19 @@ const ReportAnimal = () => {
     location: "",
     urgency: "normal",
     imageUrl: "",
-    userId: 1,
+    userId: user?.id || 1,
     latitude: "",
     longitude: "",
     status: "pending",
   });
+  
+  // Theme colors
+  const colors = {
+    primary: "#4CAF50",
+    primaryDark: "#388E3C",
+    primaryLight: "#81C784",
+    background: "#E8F5E9"
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -140,7 +148,7 @@ const ReportAnimal = () => {
         overflow: "hidden"
       }}>
         <div style={{
-          backgroundColor: "rgba(74, 144, 226, 0.1)",
+          backgroundColor: "rgba(76, 175, 80, 0.1)",
           borderBottom: "1px solid #e5e7eb",
           padding: "20px"
         }}>
@@ -167,10 +175,10 @@ const ReportAnimal = () => {
           <div style={{
             marginBottom: "24px",
             padding: "12px",
-            backgroundColor: "#EFF6FF",
-            color: "#1E40AF",
+            backgroundColor: colors.background,
+            color: colors.primaryDark,
             borderRadius: "4px",
-            border: "1px solid #BFDBFE"
+            border: `1px solid ${colors.primaryLight}`
           }}>
             <h3 style={{
               fontWeight: "bold",
@@ -448,7 +456,7 @@ const ReportAnimal = () => {
                 disabled={isSubmitting}
                 style={{
                   padding: "10px 16px",
-                  backgroundColor: "#4A90E2",
+                  backgroundColor: colors.primary,
                   color: "white",
                   border: "none",
                   borderRadius: "4px",
