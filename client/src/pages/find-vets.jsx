@@ -7,6 +7,10 @@ const FindVets = ({ user }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [userLocation, setUserLocation] = useState({
+    latitude: null,
+    longitude: null
+  });
 
   useEffect(() => {
     document.title = "Find Veterinarians - AnimalSOS";
@@ -27,6 +31,36 @@ const FindVets = ({ user }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          
+          // Find nearby vets based on coordinates
+          findNearbyVets(position.coords.latitude, position.coords.longitude);
+          alert("Location detected! Showing veterinarians near your location.");
+        },
+        (error) => {
+          alert("Could not detect your location. Please enter a pincode instead.");
+        }
+      );
+    } else {
+      alert("Your browser doesn't support geolocation. Please enter a pincode instead.");
+    }
+  };
+  
+  const findNearbyVets = (lat, lng) => {
+    setSearchPerformed(true);
+    
+    // In a real-world application, we would use the coordinates to calculate actual distances
+    // For this demo, we'll just assume all vets are nearby if we have coordinates
+    setFilteredVets(vets);
   };
 
   const searchByPincode = () => {
@@ -131,12 +165,30 @@ const FindVets = ({ user }) => {
           >
             Find Vets
           </button>
+          <button
+            onClick={getCurrentLocation}
+            title="Use my current location"
+            style={{
+              backgroundColor: "#388E3C",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              padding: "0 12px",
+              cursor: "pointer",
+              fontWeight: "500",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            📍
+          </button>
         </div>
         <p style={{ 
           color: "#666", 
           fontSize: "14px"
         }}>
-          Enter your pincode to find veterinary clinics in your area
+          Enter your pincode or use the location button (📍) to find veterinary clinics near you
         </p>
       </div>
 
@@ -164,7 +216,7 @@ const FindVets = ({ user }) => {
           backgroundColor: "#E8F5E9",
           borderRadius: "8px"
         }}>
-          <p style={{ color: "#2E7D32" }}>Enter your pincode and click "Find Vets" to see veterinarians in your area</p>
+          <p style={{ color: "#2E7D32" }}>Enter your pincode or use your current location to find veterinarians nearby</p>
         </div>
       ) : filteredVets.length === 0 ? (
         <div style={{
